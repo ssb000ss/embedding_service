@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedding Service Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+    
+    <main class="dashboard-container">
+        <header>
+            <div class="logo-area">
+                <h1>Embedding <span>Service</span></h1>
+                <p>Real-time Monitor</p>
+            </div>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="label">Total Jobs</span>
+                    <span id="total-count" class="value">0</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="controls">
+            <div class="filters">
+                <button class="filter-btn active" data-status="">All</button>
+                <button class="filter-btn" data-status="queued">Queued</button>
+                <button class="filter-btn" data-status="processing">Processing</button>
+                <button class="filter-btn" data-status="done">Done</button>
+                <button class="filter-btn" data-status="failed">Failed</button>
+            </div>
+            <div class="refresh-area">
+                <button id="refresh-btn">↻ Refresh</button>
+            </div>
+        </section>
+
+        <section class="table-container">
+            <table id="jobs-table">
+                <thead>
+                    <tr>
+                        <th>Job ID</th>
+                        <th>Created</th>
+                        <th>Status</th>
+                        <th>Progress</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="jobs-list">
+                    <!-- Loaded dynamically -->
+                </tbody>
+            </table>
+        </section>
+
+        <footer class="pagination-footer">
+            <div class="pagination-info">
+                Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+            </div>
+            <div class="pagination-btns">
+                <button id="prev-page" disabled>Previous</button>
+                <button id="next-page" disabled>Next</button>
+            </div>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

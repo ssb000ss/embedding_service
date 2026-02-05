@@ -1,0 +1,64 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: embedding_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - embedding_network
+
+  api:
+    build: .
+    container_name: embedding_api
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=sqlite:///./storage/jobs.db
+      - REDIS_URL=redis://redis:6379/0
+      - STORAGE_PATH=/app/storage
+      - EMBEDDING_MODEL_NAME=BAAI/bge-m3
+      - USE_CELERY=true
+      - PRELOAD_MODEL=false
+    volumes:
+      - ./storage:/app/storage
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: uvicorn main:app --host 0.0.0.0 --port 8001
+    networks:
+      - embedding_network
+
+  worker:
+    build: .
+    container_name: embedding_worker
+    environment:
+      - DATABASE_URL=sqlite:///./storage/jobs.db
+      - REDIS_URL=redis://redis:6379/0
+      - STORAGE_PATH=/app/storage
+      - EMBEDDING_MODEL_NAME=BAAI/bge-m3
+    volumes:
+      - ./storage:/app/storage
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: python -m celery -A worker.celery_app worker --loglevel=info -P solo
+    networks:
+      - embedding_network
+    # Для активации NVIDIA GPU на Linux раскомментируйте блок ниже
+    # или используйте: docker-compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [ gpu ]
+
+networks:
+  embedding_network:
+    driver: bridge
